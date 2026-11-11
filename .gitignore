@@ -1,0 +1,23 @@
+# ── data (never commit) ───────────────────────────────────────────────────────
+candidate_pack/data/
+*.jsonl
+
+# ── base model weights ────────────────────────────────────────────────────────
+*.bin
+*.safetensors.bak
+
+# ── adapter large files handled by Git LFS (see .gitattributes) ──────────────
+# adapter/adapter_model.safetensors  ← tracked via LFS, not ignored
+
+# ── Colab / Python artifacts ──────────────────────────────────────────────────
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.egg-info/
+.env
+
+# ── OS / editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+scratch_inspect.py

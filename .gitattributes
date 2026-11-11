@@ -1,0 +1,2 @@
+# Git LFS — track large adapter weight file
+adapter/adapter_model.safetensors filter=lfs diff=lfs merge=lfs -text
