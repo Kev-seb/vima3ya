@@ -1,6 +1,7 @@
 # ── data (never commit) ───────────────────────────────────────────────────────
-candidate_pack/data/
+candidate_pack/
 *.jsonl
+!predictions_test.jsonl
 
 # ── base model weights ────────────────────────────────────────────────────────
 *.bin

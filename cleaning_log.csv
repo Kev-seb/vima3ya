@@ -1,0 +1,356 @@
+id,action,reason
+tr-00008,drop,dev_leak
+tr-00013,fix,priority_wrong:P1->P3
+tr-00018,fix,priority_wrong:P1->P3
+tr-00020,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00023,fix,priority_wrong:P1->P3
+tr-00034,drop,junk_ticket
+tr-00045,fix,priority_wrong:P3->P1
+tr-00049,fix,old_schema:prio_key
+tr-00058,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00059,fix,priority_wrong:P1->P3
+tr-00060,drop,unparseable_label
+tr-00065,drop,dev_leak
+tr-00071,fix,txn_id_not_normalised:'NP-9718716109'
+tr-00072,fix,old_schema:prio_key
+tr-00073,fix,amount_in_rupees:168787->16878725
+tr-00074,drop,duplicate
+tr-00077,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00086,drop,dev_leak
+tr-00095,drop,unparseable_label
+tr-00103,drop,duplicate
+tr-00114,fix,old_schema:prio_key
+tr-00120,fix,old_schema:prio_key
+tr-00123,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00125,drop,unparseable_label
+tr-00129,fix,priority_wrong:P3->P2
+tr-00130,drop,dev_leak
+tr-00144,fix,amount_in_rupees:167->16700
+tr-00146,fix,priority_wrong:P1->P3
+tr-00147,fix,txn_id_not_normalised:'np9891267518'
+tr-00151,fix,txn_id_not_normalised:'NP-2339259875'
+tr-00153,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00154,fix,priority_wrong:P3->P2
+tr-00156,drop,duplicate
+tr-00160,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00162,drop,dev_leak
+tr-00164,drop,junk_ticket
+tr-00167,fix,amount_in_rupees:267->26700
+tr-00172,drop,unparseable_label
+tr-00178,fix,old_schema:prio_key
+tr-00184,fix,priority_wrong:P3->P1
+tr-00187,fix,amount_in_rupees:220000->22000000
+tr-00192,fix,old_schema:prio_key
+tr-00199,fix,amount_in_rupees:674->67400
+tr-00208,drop,duplicate
+tr-00211,drop,duplicate
+tr-00212,fix,priority_wrong:P3->P1
+tr-00219,fix,old_schema:prio_key
+tr-00220,fix,priority_wrong:P3->P2
+tr-00222,fix,amount_in_rupees:594->59450
+tr-00223,fix,old_schema:prio_key
+tr-00225,fix,priority_wrong:P1->P3
+tr-00226,drop,duplicate
+tr-00249,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00258,fix,old_schema:prio_key
+tr-00261,drop,dev_leak
+tr-00263,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00264,fix,amount_in_rupees:702->70200
+tr-00266,drop,dev_leak
+tr-00267,drop,unparseable_label
+tr-00280,drop,dev_leak
+tr-00294,fix,priority_wrong:P3->P2
+tr-00297,drop,duplicate
+tr-00306,fix,priority_wrong:P1->P3
+tr-00307,drop,duplicate
+tr-00309,fix,priority_wrong:P1->P3
+tr-00312,fix,priority_wrong:P1->P3
+tr-00317,drop,dev_leak
+tr-00318,drop,junk_ticket
+tr-00320,fix,old_schema:prio_key
+tr-00328,fix,amount_in_rupees:667->66750
+tr-00330,drop,dev_leak
+tr-00340,drop,duplicate
+tr-00343,drop,dev_leak
+tr-00346,fix,old_schema:prio_key
+tr-00347,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00349,drop,duplicate
+tr-00355,fix,priority_wrong:P3->P2
+tr-00357,drop,unparseable_label
+tr-00358,drop,dev_leak
+tr-00364,drop,duplicate
+tr-00365,fix,old_schema:prio_key
+tr-00370,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00373,drop,duplicate
+tr-00379,drop,dev_leak
+tr-00380,fix,priority_wrong:P1->P3
+tr-00382,fix,amount_in_rupees:46094->4609400
+tr-00385,fix,old_schema:prio_key
+tr-00391,fix,txn_id_not_normalised:'NP 9255627510'
+tr-00397,drop,duplicate
+tr-00407,fix,amount_in_rupees:359->35900
+tr-00413,fix,priority_wrong:P1->P3
+tr-00420,fix,txn_id_not_normalised:'np 81633 47892'
+tr-00424,fix,priority_wrong:P3->P1
+tr-00427,fix,priority_wrong:P3->P1
+tr-00436,drop,duplicate
+tr-00452,fix,priority_wrong:P1->P3
+tr-00454,drop,duplicate
+tr-00456,drop,duplicate
+tr-00457,fix,old_schema:prio_key
+tr-00460,fix,txn_id_not_normalised:'NP 6949410784'
+tr-00461,fix,old_schema:prio_key
+tr-00470,fix,txn_id_not_normalised:'np 11245 46709'
+tr-00472,fix,amount_in_rupees:5815->581500
+tr-00473,drop,duplicate
+tr-00475,fix,old_schema:prio_key
+tr-00476,drop,duplicate
+tr-00478,drop,unparseable_label
+tr-00485,fix,priority_wrong:P1->P3
+tr-00496,drop,dev_leak
+tr-00497,drop,unparseable_label
+tr-00502,drop,duplicate
+tr-00503,fix,priority_wrong:P1->P3
+tr-00505,fix,priority_wrong:P1->P3
+tr-00508,fix,priority_wrong:P1->P3
+tr-00514,drop,dev_leak
+tr-00516,fix,old_schema:prio_key
+tr-00523,fix,priority_wrong:P1->P3
+tr-00532,drop,duplicate
+tr-00533,fix,priority_wrong:P1->P3
+tr-00534,drop,duplicate
+tr-00540,drop,duplicate
+tr-00546,drop,duplicate
+tr-00555,drop,junk_ticket
+tr-00556,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00558,drop,unparseable_label
+tr-00559,drop,dev_leak
+tr-00560,fix,amount_in_rupees:1100->110000
+tr-00567,fix,priority_wrong:P3->P2
+tr-00570,fix,txn_id_not_normalised:'np 87267 97611'
+tr-00573,drop,duplicate
+tr-00577,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00581,drop,duplicate
+tr-00583,drop,dev_leak
+tr-00585,drop,dev_leak
+tr-00588,drop,dev_leak
+tr-00589,fix,old_schema:prio_key
+tr-00595,fix,txn_id_not_normalised:'np3247474643'
+tr-00602,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00605,drop,unparseable_label
+tr-00606,fix,old_schema:prio_key
+tr-00609,drop,dev_leak
+tr-00610,fix,old_schema:prio_key
+tr-00614,drop,dev_leak
+tr-00616,drop,dev_leak
+tr-00622,fix,amount_in_rupees:3702->370200
+tr-00628,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00635,drop,duplicate
+tr-00638,fix,priority_wrong:P3->P1
+tr-00648,fix,priority_wrong:P3->P2
+tr-00649,fix,txn_id_not_normalised:'NP-8919677483'
+tr-00650,drop,dev_leak
+tr-00653,fix,amount_in_rupees:1179->117900
+tr-00656,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00665,drop,duplicate
+tr-00669,drop,dev_leak
+tr-00670,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00671,drop,duplicate
+tr-00674,drop,unparseable_label
+tr-00677,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00681,drop,dev_leak
+tr-00685,fix,old_schema:prio_key
+tr-00688,fix,amount_in_rupees:209->20900
+tr-00689,fix,priority_wrong:P1->P3
+tr-00690,drop,duplicate
+tr-00691,fix,amount_in_rupees:678->67800
+tr-00701,drop,duplicate
+tr-00704,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00706,fix,priority_wrong:P3->P2
+tr-00707,fix,priority_wrong:P3->P2
+tr-00716,drop,duplicate
+tr-00717,fix,priority_wrong:P1->P3
+tr-00727,fix,amount_in_rupees:17914->1791499
+tr-00735,drop,unparseable_label
+tr-00744,fix,old_schema:prio_key
+tr-00745,fix,priority_wrong:P1->P3
+tr-00746,fix,priority_wrong:P3->P2
+tr-00755,drop,dev_leak
+tr-00757,fix,priority_wrong:P1->P3
+tr-00761,drop,duplicate
+tr-00765,drop,unparseable_label
+tr-00771,fix,txn_id_not_normalised:'np9038808761'
+tr-00773,drop,duplicate
+tr-00778,fix,old_schema:prio_key
+tr-00782,fix,priority_wrong:P1->P3
+tr-00783,drop,duplicate
+tr-00789,drop,dev_leak
+tr-00790,drop,junk_ticket
+tr-00791,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00794,drop,junk_ticket
+tr-00795,fix,amount_in_rupees:34300->3430000
+tr-00800,drop,duplicate
+tr-00802,fix,priority_wrong:P1->P3
+tr-00809,drop,unparseable_label
+tr-00811,drop,duplicate
+tr-00820,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00822,drop,duplicate
+tr-00824,drop,unparseable_label
+tr-00838,fix,txn_id_not_normalised:'NP 6186175115'
+tr-00839,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00840,drop,dev_leak
+tr-00843,drop,duplicate
+tr-00845,fix,amount_in_rupees:2999->299900
+tr-00846,drop,unparseable_label
+tr-00850,drop,duplicate
+tr-00852,fix,priority_wrong:P3->P1
+tr-00854,drop,dev_leak
+tr-00861,drop,duplicate
+tr-00864,drop,duplicate
+tr-00870,drop,duplicate
+tr-00879,fix,priority_wrong:P1->P3
+tr-00880,drop,duplicate
+tr-00888,fix,txn_id_not_normalised:'np7786684387'
+tr-00890,fix,priority_wrong:P3->P1
+tr-00899,fix,txn_id_not_normalised:'NP-1325500121'
+tr-00900,drop,duplicate
+tr-00907,drop,dev_leak
+tr-00908,fix,txn_id_not_normalised:'np 45856 96868'
+tr-00913,drop,duplicate
+tr-00920,fix,amount_in_rupees:853->85300
+tr-00922,fix,old_schema:prio_key
+tr-00932,fix,priority_wrong:P3->P2
+tr-00933,fix,priority_wrong:P1->P3
+tr-00936,drop,duplicate
+tr-00941,drop,dev_leak
+tr-00958,drop,unparseable_label
+tr-00960,drop,unparseable_label
+tr-00967,fix,priority_wrong:P1->P3
+tr-00968,drop,duplicate
+tr-00970,drop,dev_leak
+tr-00975,drop,unparseable_label
+tr-00977,drop,duplicate
+tr-00978,drop,unparseable_label
+tr-00979,drop,unparseable_label
+tr-00980,drop,unparseable_label
+tr-00983,drop,duplicate
+tr-00985,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-00986,fix,amount_in_rupees:1975->197500
+tr-00987,fix,old_schema:prio_key
+tr-00988,drop,duplicate
+tr-00990,drop,duplicate
+tr-01000,drop,duplicate
+tr-01001,drop,dev_leak
+tr-01006,fix,old_schema:prio_key
+tr-01010,drop,duplicate
+tr-01011,drop,duplicate
+tr-01012,fix,txn_id_not_normalised:'np 78549 05014'
+tr-01013,drop,duplicate
+tr-01017,fix,priority_wrong:P3->P1
+tr-01019,fix,priority_wrong:P3->P1
+tr-01023,fix,priority_wrong:P3->P1
+tr-01028,fix,old_schema:prio_key
+tr-01030,drop,duplicate
+tr-01031,drop,dev_leak
+tr-01032,drop,junk_ticket
+tr-01033,drop,duplicate
+tr-01042,drop,duplicate
+tr-01044,drop,duplicate
+tr-01046,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-01048,fix,priority_wrong:P1->P3
+tr-01052,drop,duplicate
+tr-01055,drop,duplicate
+tr-01067,drop,duplicate
+tr-01070,drop,unparseable_label
+tr-01078,drop,duplicate
+tr-01083,fix,old_schema:prio_key
+tr-01085,drop,duplicate
+tr-01086,fix,priority_wrong:P3->P1
+tr-01087,drop,unparseable_label
+tr-01089,fix,old_schema:prio_key
+tr-01093,drop,duplicate
+tr-01095,fix,amount_in_rupees:592->59200
+tr-01102,drop,duplicate
+tr-01104,drop,duplicate
+tr-01108,drop,duplicate
+tr-01109,fix,priority_wrong:P3->P2
+tr-01112,drop,duplicate
+tr-01115,fix,old_schema:prio_key
+tr-01129,drop,duplicate
+tr-01131,fix,priority_wrong:P3->P2
+tr-01133,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-01134,drop,duplicate
+tr-01135,drop,duplicate
+tr-01136,fix,txn_id_not_normalised:'NP 5804974985'
+tr-01138,drop,duplicate
+tr-01139,drop,duplicate
+tr-01141,drop,duplicate
+tr-01143,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-01146,fix,priority_wrong:P1->P3
+tr-01151,fix,old_schema:prio_key
+tr-01158,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-01160,drop,dev_leak
+tr-01166,drop,junk_ticket
+tr-01170,drop,dev_leak
+tr-01172,drop,dev_leak
+tr-01176,drop,duplicate
+tr-01178,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-01180,drop,duplicate
+tr-01183,drop,duplicate
+tr-01186,drop,dev_leak
+tr-01188,fix,txn_id_not_normalised:'np0530288495'
+tr-01199,drop,unparseable_label
+tr-01202,fix,old_schema:prio_key
+tr-01204,drop,duplicate
+tr-01206,drop,dev_leak
+tr-01222,fix,priority_wrong:P1->P3
+tr-01238,fix,txn_id_not_normalised:'NP-7739480420'
+tr-01239,drop,duplicate
+tr-01241,drop,duplicate
+tr-01242,drop,duplicate
+tr-01246,drop,duplicate
+tr-01248,drop,duplicate
+tr-01250,drop,duplicate
+tr-01260,drop,duplicate
+tr-01273,drop,duplicate
+tr-01274,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-01275,drop,duplicate
+tr-01286,fix,old_schema:prio_key
+tr-01301,fix,old_schema:prio_key
+tr-01304,drop,junk_ticket
+tr-01305,fix,priority_wrong:P3->P2
+tr-01309,drop,dev_leak
+tr-01311,fix,amount_in_rupees:497->49799
+tr-01313,drop,dev_leak
+tr-01314,drop,junk_ticket
+tr-01319,fix,priority_wrong:P3->P1
+tr-01326,fix,old_schema:prio_key
+tr-01329,drop,duplicate
+tr-01331,fix,old_schema:prio_key
+tr-01338,drop,duplicate
+tr-01339,drop,dev_leak
+tr-01343,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-01348,drop,duplicate
+tr-01349,drop,dev_leak
+tr-01350,drop,dev_leak
+tr-01355,fix,amount_in_rupees:467->46700
+tr-01359,fix,old_schema:prio_key
+tr-01363,fix,txn_id_not_normalised:'np 25586 43472'
+tr-01366,fix,old_schema:prio_key; old_schema:dd/mm/yyyy_date
+tr-01370,fix,priority_wrong:P3->P1
+tr-01375,fix,amount_in_rupees:31855->3185500
+tr-01381,drop,duplicate
+tr-01386,fix,old_schema:prio_key
+tr-01393,drop,duplicate
+tr-01398,drop,duplicate
+tr-01399,drop,duplicate
+tr-01403,fix,priority_wrong:P3->P1
+tr-01407,fix,priority_wrong:P1->P3
+tr-01409,drop,duplicate
+tr-01413,fix,old_schema:prio_key
+tr-01419,drop,duplicate
+tr-01421,drop,dev_leak
+tr-01427,drop,duplicate
+tr-01433,drop,duplicate
+tr-01441,fix,old_schema:prio_key
+tr-01443,drop,duplicate

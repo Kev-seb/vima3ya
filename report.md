@@ -1,97 +1,73 @@
 # NimbusPay Ticket Triage — Report
 
-**Base model:** `Qwen/Qwen2.5-1.5B-Instruct`  
-**Loaded in 4-bit:** Yes (QLoRA, nf4 + double quantisation)  
-**Best result:** _(fill in after experiments)_ — E2 (clean data, r=16, 4-bit, 3 epochs): `exact_match = X.X%`, `mean_field_acc = X.X%`
+**Base model:** `Qwen/Qwen2.5-1.5B-Instruct` · **Final adapter:** QLoRA (base loaded in 4-bit nf4) — _update if E3 (16-bit) wins_
+**Best dev result:** _TBD_ (run `E5_aug`) — exact match _TBD_, mean field accuracy _TBD_
 
 ---
 
-## 1. Data Audit (Part A)
+## 1. Data audit (Part A)
 
-### What was found
+**Method.** (1) Structural checks on every label: valid JSON, exactly the 8 keys, valid types and values.
+(2) Leakage and duplicate checks: ticket text normalised (lowercased, punctuation and whitespace collapsed) and compared with dev, test and the rest of train.
+(3) A rule-based reference extractor written from SCHEMA.md (`rules.py`), which agrees with **all 200 dev labels on every non-category field**. Wherever it disagreed with a train label, I read the row and grouped the disagreement into an issue type. No issue type was accepted without reading examples.
+(4) Category was audited separately with out-of-fold TF-IDF + logistic regression, a confident-learning approach (5-fold, 97% accuracy). I read every confident disagreement.
 
-| Issue type | Count | Action |
-|---|---|---|
-| Wrong key name (`prio` instead of `priority`) | 70 | Drop — cannot safely fix without knowing intended value |
-| Unparseable assistant label (not valid JSON) | 25 | Drop |
-| `needs_human` wrong | 69 | Fix — re-derive from priority and repeat-contact phrases |
-| `priority` wrong | 65 | Fix — re-derive from SCHEMA rules |
-| `txn_id` not normalised | 20 | Fix — strip hyphens/spaces, uppercase |
-| **Total affected rows** | **249** | 95 dropped, 154 fixed |
-| **Clean training set** | **1,350** | (from 1,445 raw) |
+| Issue | Rows | How found | Action |
+|---|---:|---|---|
+| Duplicate ticket (near-identical text, identical label) | 100 | normalised-text match within train | drop (keep first) |
+| **Ticket also in dev** (30 exact + 15 differing only in spacing or punctuation) | 45 | normalised-text match against dev | **drop**: the rules forbid training on dev, and these rows would inflate dev scores |
+| Truncated / unparseable label JSON | 25 | `json.loads` fails | drop: fields unknowable |
+| Junk ticket (`test`, `asdf asdf`, empty) with a full label | 10 | body < 20 chars | drop |
+| Old schema (v1): key `prio` with `low/medium/high`, dates as `DD/MM/YYYY` | 70 rows (100 issues) | key-set check | **fix**: in all 70 rows `low/medium/high` maps exactly to the P3/P2/P1 the spec rules give, so rename + convert |
+| Priority contradicts the spec rules | 60 | rule disagreement | fix: re-derive |
+| Amount stored in rupees, not paise ("INR 167" → 167; "2.2 lakh" → 220000) | 25 | label × 100 = extracted amount | fix: × 100 |
+| `txn_id` not normalised (`np 81633 47892`, `NP-…`) | 20 | regex | fix: `NP` + 10 digits |
+| **Result** | 1,445 → **1,265** | | 180 dropped, 175 fixed; every row in `cleaning_log.csv` |
 
-### How each issue was found
+**Checked and found clean:** `category` (the confident disagreements were all classifier errors, e.g. "a payment I don't recognise" is correctly `fraud`, not `refund`), `txn_date`, `channel`, `language` and `needs_human`. Every residual disagreement on those fields was a junk ticket.
+After cleaning, every kept label agrees with the reference extractor.
 
-**Structural issues (dropped):**  
-Rows where the assistant JSON had the key `"prio"` instead of `"priority"` were detected by checking `set(label.keys()) != REQUIRED_KEYS`. These 70 rows also often had the companion problem of `txn_date` in `DD/MM/YYYY` format. Since the priority value could not be inferred from the wrong key name alone, these were dropped rather than guessed at.
+**A correction to my own first pass.** My first audit "fixed" 69 `needs_human` labels and dropped all 70 v1 rows. Both decisions were wrong:
+- Its repeat-contact phrase list missed "This is my second complaint on the same issue" and "I have already written 4 times about this". I extracted the real phrase set from the data instead: 8 phrase families, none ever labelled `false`. Those 69 "fixes" were turning correct labels into wrong ones.
+- The v1 rows turned out to be recoverable.
 
-25 rows had assistant content that was not valid JSON at all (truncated, extra text before the JSON, etc.). Dropped.
+Two distractors are worth noting: "my earlier ticket number is #…" is **not** a repeat contact (dev labels it `false`), and "tried my PIN too many times" is a retry, not a contact.
 
-**Label logic errors (fixed):**  
-Priority and `needs_human` were re-derived from the SCHEMA rules:
-- `P1` if `fraud`, or `amount_rupees ≥ 50,000`, or legal-threat keywords present.
-- `P2` if (`payment_failed`|`refund`) and `amount_rupees ≥ 5,000`, or `account_access`.
-- `P3` otherwise.
-- `needs_human = True` if `priority == P1` **or** repeat-contact phrases detected (e.g. "third time", "pehle bhi", "again and again").
+**Gaps that remain after cleaning, which motivate E5.** `Received` dates cover only Jun–Sep 2026, so there is no example of a year-less date that must resolve to the previous year. "parso" appears 5 times and "kal" 13 times. Fee distractors appear 9 times.
 
-65 priority mismatches found — common patterns:
-- `offers` category labelled P1 (no fraud, no high amount, no legal threat → should be P3).
-- `fraud` category with a small amount labelled P2 (should always be P1).
-- `payment_failed`/`refund` with amount ≥ ₹50,000 labelled P2 (should be P1).
+## 2. Baselines and experiments (Parts B–D)
 
-**Format issues (fixed):**  
-20 `txn_id` fields had non-standard formatting (`NP-XXXXXXXXXX`, `np XXXXX XXXXX`, `np XXXXXXXXXX`). Normalised to `NP` + 10 digits.
+All runs are on dev (200 rows) with `score.py`. Each fine-tuning run changes **one** thing relative to E2.
+Shared settings: LoRA on all attention + MLP projections, α = 2r, dropout 0.05, LR 2e-4 cosine with 5% warm-up, batch 4 × gradient accumulation 4 = 16, fp16 (the T4 has no bf16), seed 42, and greedy decoding with batch size 1 (the graders' setting).
 
----
+| Run | What changed | Dev exact | Dev mean field acc | Peak GPU (GB) | Train min |
+|---|---|---:|---:|---:|---:|
+| B1 | base model, fixed prompt | | | | – |
+| B2 | base model, SCHEMA rules in prompt | | | | – |
+| E1 | raw `train.jsonl` instead of cleaned | | | | |
+| E2 | **reference**: cleaned data, 4-bit QLoRA, r=16, 3 epochs | | | | |
+| E3 | 16-bit LoRA instead of 4-bit QLoRA | | | | |
+| E4 | 1 epoch instead of 3 | | | | |
+| E5 | + 800 rule-targeted augmented rows | | | | |
 
-## 2. Experiment Results (Part D)
+_Fill from the table cell in the notebook (Part D), which rebuilds it from the saved `result.json` files._
 
-| Run | What changed | Dev Exact Match | Dev Mean Field Acc | Peak GPU (MB) | Train (min) |
-|---|---|---|---|---|---|
-| B1 | Zero-shot, no rules | — | — | — | — |
-| B2 | Rules in system prompt | — | — | — | — |
-| E1 | Raw training data | — | — | — | — |
-| E2 | **Clean data** (reference) | — | — | — | — |
-| E3 | 16-bit LoRA (bf16) | — | — | — | — |
-| E4 | rank=32 | — | — | — | — |
-| E5 | 5 epochs on clean data | — | — | — | — |
+**Main settings and why.**
+- *Model:* the 1.5B size keeps each run short enough for 5+ runs in free-tier quota.
+- *r = 16 on all linear layers:* 18.5M trainable parameters, well under the 50M cap. r = 64 would exceed it.
+- *`MAX_LEN`:* the maximum measured length rounded up to 64, because truncation would cut the label, which sits at the end of the sequence. Some tickets carry long quoted email threads; see the length histogram in the notebook.
+- *Loss:* only on the label JSON plus `<|im_end|>`. Learning the end-of-turn token is what makes the model stop after the JSON. The vocabulary projection runs only at label positions, through a custom `compute_loss` that matches HF's built-in loss to within 2e-7. Without it, a batch of 4 long quoted-thread tickets (p99 = 1,858 tokens, max = 2,214) needs about 18 GB of fp32 logits and runs out of memory, which I measured. With it, the worst-case batch peaks at 6.2 GB (4-bit) / 7.6 GB (16-bit).
+- *Reproducibility:* a local test showed that predictions from the in-memory QLoRA model differ from predictions after reloading base + adapter, because `prepare_model_for_kbit_training` upcasts norms and embeddings to fp32. Batched generation also differs from bs=1. So every scored prediction comes from a fresh reload at bs=1, the graders' exact path. The base-model baselines use bs=8 to save time.
+- *E1 caveat:* raw data contains the 45 dev tickets, so E1's dev score is optimistically biased. That bias works against the cleaning, so a win for E2 is conservative.
 
-> Fill in numbers after Colab runs.
+## 3. Error analysis (Part E)
 
-**Key findings:**
-- Cleaning data (E2 vs E1) gave the biggest single improvement.
-- _[fill in]_
+_TBD from the notebook's Part E cells: the weakest fields and categories, then 10+ failures, each with an explanation._
 
----
+## 4. With one more week
 
-## 3. Error Analysis (Part E)
+_TBD after the results. Candidates: a 3B model for date arithmetic; augmentation aimed at the confusions found in Part E; checking whether the "harder" test cases match the augmentation targets._
 
-### Weakest fields (best model on dev)
+## 5. Use of AI tools
 
-| Field | Accuracy |
-|---|---|
-| _(fill in)_ | — |
-
-### 10 specific failures
-
-| # | ID | Wrong field(s) | Root cause |
-|---|---|---|---|
-| 1 | | | |
-| … | | | |
-
-### What I would do with one more week
-
-1. **More data for rare categories** (`fraud`, `kyc`, `offers` together account for ~15% of train but tend to be harder). Generate synthetic examples or bootstrap from dev errors.
-2. **Better date parsing** — relative dates like "kal", "parso", "3 din pehle" need a Hinglish-aware resolver.
-3. **Rank sweep** — try r=8 and r=64 to find the sweet spot for this task size.
-4. **Longer context** — a few tickets embed quoted email threads; increasing `max_seq_length` to 768 would capture them.
-
----
-
-## 4. AI tools used
-
-| Tool | Where |
-|---|---|
-| Antigravity (Gemini) | Drafted audit script, notebook structure, report template |
-| — | All numbers, decisions, and code are my own; I read and verified every line |
-
+I used Claude Code (Anthropic) as a coding assistant. It helped write and debug `rules.py`, `audit.py`, `augment.py` and the notebook, and it suggested audit checks; the duplicate/dev-leak check and the out-of-fold category check came from it. It also drafted this report. _[Edit to match what you actually did, e.g. which flagged rows you checked yourself and which decisions you changed.]_ All training ran on Colab, and every number in this report comes from those runs.
