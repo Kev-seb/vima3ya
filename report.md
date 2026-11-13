@@ -1,7 +1,7 @@
 # NimbusPay Ticket Triage — Report
 
-**Base model:** `Qwen/Qwen2.5-1.5B-Instruct` · **Final adapter:** QLoRA (base loaded in 4-bit nf4) — _update if E3 (16-bit) wins_
-**Best dev result:** _TBD_ (run `E5_aug`) — exact match _TBD_, mean field accuracy _TBD_
+**Base model:** `Qwen/Qwen2.5-1.5B-Instruct` · **Final adapter:** E5_aug, QLoRA (base loaded in 4-bit nf4), r=16, 18.5M trainable params
+**Best dev result:** exact match **91.5%**, mean field accuracy **98.2%**, valid JSON 100%
 
 ---
 
@@ -42,15 +42,20 @@ Shared settings: LoRA on all attention + MLP projections, α = 2r, dropout 0.05,
 
 | Run | What changed | Dev exact | Dev mean field acc | Peak GPU (GB) | Train min |
 |---|---|---:|---:|---:|---:|
-| B1 | base model, fixed prompt | | | | – |
-| B2 | base model, SCHEMA rules in prompt | | | | – |
-| E1 | raw `train.jsonl` instead of cleaned | | | | |
-| E2 | **reference**: cleaned data, 4-bit QLoRA, r=16, 3 epochs | | | | |
-| E3 | 16-bit LoRA instead of 4-bit QLoRA | | | | |
-| E4 | 1 epoch instead of 3 | | | | |
-| E5 | + 800 rule-targeted augmented rows | | | | |
+| B1 | base model, fixed prompt | 0.0% | 0.0% | 2.8 | – |
+| B2 | base model, SCHEMA rules in prompt | 0.0% | 0.4% | 3.8 | – |
+| E2 | **reference**: cleaned data, 4-bit QLoRA, r=16, 3 epochs | 80.0% | 96.4% | 7.35 | 39.1 |
+| E5 | + 800 rule-targeted augmented rows | **91.5%** | **98.2%** | 6.20 | 50.9 |
+| E1 | raw `train.jsonl` instead of cleaned | not run | | | |
+| E3 | 16-bit LoRA instead of 4-bit QLoRA | not run | | | |
+| E4 | 1 epoch instead of 3 | not run | | | |
+| E6 | E5 with `priority`/`needs_human` emitted last (code in notebook) | not run | | | |
 
-_Fill from the table cell in the notebook (Part D), which rebuilds it from the saved `result.json` files._
+**Honest status:** I ran out of Colab GPU time before the deadline. Each run took about 1 hour on the free T4 (training plus bs=1 dev generation), and the free tier allows one session at a time. Only B1/B2, E2 and E5 finished. The code for E1, E3, E4 and E6 is in the notebook (`CONFIGS`) and runs by setting `RUN`. The assignment's required comparisons (raw vs clean, 16- vs 4-bit, epochs) are therefore **not** evidenced by numbers here.
+
+**Baselines score 0** because the base model wraps its JSON in markdown fences (```json … ```), and stripping them is not allowed. As a diagnostic only (not a submitted score): with the fences removed, B2 reaches 48.6% field accuracy and still 0% exact. The format alone justifies fine-tuning.
+
+**E2 → E5 (+11.5 points exact).** E2's errors were dominated by `priority` (84%) and `needs_human` (92.5%). E5 lifts these to 93.5% and 97%, plus small gains on `txn_date`/`channel`. Peak memory is lower in E5 only because of batch composition (it is the same code).
 
 **Main settings and why.**
 - *Model:* the 1.5B size keeps each run short enough for 5+ runs in free-tier quota.
@@ -62,12 +67,36 @@ _Fill from the table cell in the notebook (Part D), which rebuilds it from the s
 
 ## 3. Error analysis (Part E)
 
-_TBD from the notebook's Part E cells: the weakest fields and categories, then 10+ failures, each with an explanation._
+E5 on dev: 17 of 200 rows have at least one wrong field. By field: priority 13, needs_human 6, category 4, txn_date 3, amount 2, txn_id 1.
+By category (exact): kyc, offers, account_access 100%; other 94%; refund, payment_failed, fraud 87%.
+**The weakest field is `priority`**, and the cause is clear: the amount is extracted correctly (99%), but the model misplaces it relative to the ₹5,000 / ₹50,000 thresholds. `needs_human` errors are almost all knock-on errors, since P1 forces `true`.
+
+| id | Wrong field: gold → pred | Why |
+|---|---|---|
+| dv-00005 | priority P2 → P1, needs_human | ₹49,680 is just under the ₹50,000 threshold; the model rounds it up |
+| dv-00034 | priority P2 → P1 | ₹36,737 refund/failed: threshold comparison wrong |
+| dv-00056 | priority P2 → P1 | ₹44,206.75: same as above |
+| dv-00081 | priority P2 → P1 | ₹24,444: same as above |
+| dv-00037 | priority P1 → P2 | ₹2,84,669: written without commas ("284669 rupees"), so it reads as smaller |
+| dv-00063 | priority P3 → P2 | ₹3,308 refund, below ₹5,000, predicted P2 |
+| dv-00127 / 00138 | P3 → P2 / P2 → P3 | ₹4,836 and ₹14,842.25: both on the wrong side of ₹5,000 |
+| dv-00044 | priority P2 → P3 | ₹8,377 refund; the repeat-contact phrase seems to distract it (needs_human is right) |
+| dv-00093 | category fraud → refund | "a random charge got added to my card": an unrecognised charge is fraud per SCHEMA, but it sounds like a billing error |
+| dv-00157 | fraud → account_access, all txn fields null | "someone asked for my OTP and took my money": the OTP mention pulls it to account_access, which nulls every txn field |
+| dv-00177 | payment_failed → fraud | "red flag on my top up" read as fraud; the customer made the payment |
+| dv-00194 | other → account_access | "lost card, can I re-activate it": card questions are `other` |
+| dv-00018 / 00090 | txn_date off by 1 day | "kal" and "parso" resolved one day wrong, even after augmentation |
+| dv-00017 | amount 18082725 → 18082525 | Copying a long digit string: one digit changed |
+
+**Why priority is hard for this setup:** the label JSON lists `priority` *before* `amount_paise`, so the model must commit to the priority before it has written the amount. A 1.5B model also compares magnitudes poorly when numbers come in Indian grouping (1,80,827), plain digits or k/lakh.
 
 ## 4. With one more week
 
-_TBD after the results. Candidates: a 3B model for date arithmetic; augmentation aimed at the confusions found in Part E; checking whether the "harder" test cases match the augmentation targets._
+1. **Run E6** (already coded): emit `priority` and `needs_human` last, so they are generated after the amount. Scoring ignores key order. This is the most direct fix for the top error.
+2. **Finish the required comparisons**: E1 (raw vs clean), E3 (16-bit vs 4-bit), E4 (epochs), with 2 seeds each, since a 200-row dev set has ±2–3 points of noise.
+3. **Augment around the thresholds**: amounts within ±10% of ₹5,000 and ₹50,000 in every format (commas, Indian grouping, k, lakh), plus fraud phrasings that do not use "fraud" ("random charge", "OTP and took money").
+4. Try **Qwen2.5-3B** in 4-bit for better number comparison and relative dates. It still fits the T4.
 
 ## 5. Use of AI tools
 
-I used Claude Code (Anthropic) as a coding assistant. It helped write and debug `rules.py`, `audit.py`, `augment.py` and the notebook, and it suggested audit checks; the duplicate/dev-leak check and the out-of-fold category check came from it. It also drafted this report. _[Edit to match what you actually did, e.g. which flagged rows you checked yourself and which decisions you changed.]_ All training ran on Colab, and every number in this report comes from those runs.
+I used Claude Code (Anthropic) as a coding assistant. It helped write and debug `rules.py`, `audit.py`, `augment.py` and the notebook, and it suggested audit checks; the duplicate/dev-leak check and the out-of-fold category check came from it. It also drafted this report. _[Edit to match what you actually did, e.g. which flagged rows you checked yourself and which decisions you changed.]_ All training ran on Colab, and every dev number in this report comes from those runs. Because the GPU time ran out, `predictions_test.jsonl` was generated locally (RTX 4060) with the same code path: base model in 4-bit nf4, the E5 adapter, chat template, greedy decoding, `max_new_tokens=200`, bs=1. The notebook's final mode regenerates it on a T4.

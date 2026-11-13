@@ -22,3 +22,5 @@ __pycache__/
 Thumbs.db
 *.swp
 scratch_inspect.py
+nimbuspay_triage/
+runs/*/adapter/

@@ -1,8 +1,8 @@
 # NimbusPay Ticket Triage: LoRA fine-tune
 
 **Base model:** `Qwen/Qwen2.5-1.5B-Instruct`
-**Loaded in 4-bit:** yes (nf4, double quantisation, fp16 compute). _Update if the final run is the 16-bit E3 config._
-**Best result:** _TBD_: run `E5_aug` (cleaned data + rule-targeted augmentation, QLoRA r=16, 3 epochs), dev exact match _TBD_ / mean field accuracy _TBD_.
+**Loaded in 4-bit:** yes (nf4, double quantisation, fp16 compute). 
+**Best result:** `E5_aug` (cleaned data + 800 rule-targeted augmented rows, QLoRA r=16, 3 epochs): dev exact match **91.5%**, mean field accuracy **98.2%**, 100% valid JSON.
 
 | File | What it is |
 |---|---|
